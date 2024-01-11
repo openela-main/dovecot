@@ -6,7 +6,7 @@ Name: dovecot
 Epoch: 1
 Version: 2.3.16
 %global prever %{nil}
-Release: 8%{?dist}
+Release: 10%{?dist}
 #dovecot itself is MIT, a few sources are PD, pigeonhole is LGPLv2
 License: MIT and LGPLv2
 
@@ -51,6 +51,10 @@ Patch20: dovecot-2.3.16-ftbfsbigend.patch
 # from upstream, for <= 2.3.19.1, rhbz#2106232
 Patch21: dovecot-2.3.19.1-7bad6a24.patch
 
+# from upstream, for < 2.3.19.1, rhbz#2128857
+Patch22: dovecot-2.3.18-bdf447e4.patch
+Patch23: dovecot-2.3.18-9f300239..4596d399.patch
+
 BuildRequires: gcc, gcc-c++, openssl-devel, pam-devel, zlib-devel, bzip2-devel, libcap-devel
 BuildRequires: libtool, autoconf, automake, pkgconfig
 BuildRequires: sqlite-devel
@@ -60,6 +64,7 @@ BuildRequires: libxcrypt-devel
 BuildRequires: openldap-devel
 BuildRequires: krb5-devel
 BuildRequires: quota-devel
+BuildRequires: rpcgen
 BuildRequires: xz-devel
 BuildRequires: lz4-devel
 BuildRequires: libzstd-devel
@@ -133,25 +138,27 @@ This package provides the development files for dovecot.
 
 %prep
 %setup -q -n %{name}-%{version}%{?prever} -a 8
-%patch1 -p1 -b .default-settings
-%patch2 -p1 -b .mkcert-permissions
-%patch3 -p1 -b .mkcert-paths
-%patch6 -p1 -b .waitonline
-%patch8 -p1 -b .initbysystemd
-%patch9 -p1 -b .systemd_w_protectsystem
-%patch15 -p1 -b .bigkey
-%patch16 -p1 -b .opensslhmac
-%patch17 -p1 -b .opensslv3
-%patch18 -p1 -b .fixvalcond
-%patch19 -p1 -b .valbasherr
-%patch20 -p1 -b .ftbfsbigend
-%patch21 -p1 -b .7bad6a24
+%patch -P 1 -p1 -b .default-settings
+%patch -P 2 -p1 -b .mkcert-permissions
+%patch -P 3 -p1 -b .mkcert-paths
+%patch -P 6 -p1 -b .waitonline
+%patch -P 8 -p1 -b .initbysystemd
+%patch -P 9 -p1 -b .systemd_w_protectsystem
+%patch -P 15 -p1 -b .bigkey
+%patch -P 16 -p1 -b .opensslhmac
+%patch -P 17 -p1 -b .opensslv3
+%patch -P 18 -p1 -b .fixvalcond
+%patch -P 19 -p1 -b .valbasherr
+%patch -P 20 -p1 -b .ftbfsbigend
+%patch -P 21 -p1 -b .7bad6a24
+%patch -P 22 -p1 -b .bdf447e4
 cp run-test-valgrind.supp dovecot-2.3-pigeonhole-%{pigeonholever}/
 # valgrind would fail with shell wrapper
 echo "testsuite" >dovecot-2.3-pigeonhole-%{pigeonholever}/run-test-valgrind.exclude
 
-#pushd dovecot-2*3-pigeonhole-%{pigeonholever}
-#popd
+pushd dovecot-2*3-pigeonhole-%{pigeonholever}
+%patch -P 23 -p1 -b .9f300239..4596d399
+popd
 sed -i '/DEFAULT_INCLUDES *=/s|$| '"$(pkg-config --cflags libclucene-core)|" src/plugins/fts-lucene/Makefile.in
 
 %build
@@ -483,6 +490,12 @@ make check
 %{_libdir}/%{name}/dict/libdriver_pgsql.so
 
 %changelog
+* Tue Aug 15 2023 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-10
+- fix leaking mailboxes if virtual mailbox can't be opened (#2231408)
+
+* Sat May 27 2023 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-9
+- add buildrequire of rpcgen to enable rquota support(#2157045)
+
 * Tue Sep 13 2022 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-8
 - do not run systemd commands during leapp upgrade (#2119385)
 
