@@ -5,7 +5,7 @@ Name: dovecot
 Epoch: 1
 Version: 2.3.16
 %global prever %{nil}
-Release: 3%{?dist}
+Release: 4%{?dist}
 #dovecot itself is MIT, a few sources are PD, pigeonhole is LGPLv2
 License: MIT and LGPLv2
 Group: System Environment/Daemons
@@ -49,6 +49,11 @@ Patch16: dovecot-2.3.16-keeplzma.patch
 
 # from upstream, for <= 2.3.19.1, rhbz#2106232
 Patch17: dovecot-2.3.19.1-7bad6a24.patch
+
+# from upstream, for < 2.3.19.1, rhbz#2128857
+Patch18: dovecot-2.3.18-9f300239..4596d399.patch
+Patch19: dovecot-2.3.18-bdf447e4.patch
+
 
 Source15: prestartscript
 
@@ -145,19 +150,21 @@ This package provides the development files for dovecot.
 
 %prep
 %setup -q -n %{name}-%{version}%{?prever} -a 8
-%patch1 -p1 -b .default-settings
-%patch2 -p1 -b .mkcert-permissions
-%patch3 -p1 -b .mkcert-paths
-%patch6 -p1 -b .waitonline
-%patch8 -p1 -b .initbysystemd
-%patch9 -p1 -b .systemd_w_protectsystem
-%patch11 -p1 -b .aclfix
-%patch13 -p1 -b .bigkey
-%patch14 -p1 -b .opensslhmac
-%patch15 -p1 -b .ftbfsbigend
-%patch16 -p1 -b .keeplzma
-%patch17 -p1 -b .7bad6a24
+%patch -P 1 -p1 -b .default-settings
+%patch -P 2 -p1 -b .mkcert-permissions
+%patch -P 3 -p1 -b .mkcert-paths
+%patch -P 6 -p1 -b .waitonline
+%patch -P 8 -p1 -b .initbysystemd
+%patch -P 9 -p1 -b .systemd_w_protectsystem
+%patch -P 11 -p1 -b .aclfix
+%patch -P 13 -p1 -b .bigkey
+%patch -P 14 -p1 -b .opensslhmac
+%patch -P 15 -p1 -b .ftbfsbigend
+%patch -P 16 -p1 -b .keeplzma
+%patch -P 17 -p1 -b .7bad6a24
+%patch -P 19 -p1 -b .bdf447e4
 pushd dovecot-2*3-pigeonhole-%{pigeonholever}
+%patch -P 18 -p1 -b .9f300239..4596d399
 
 popd
 
@@ -520,6 +527,9 @@ make check
 %{_libdir}/%{name}/dict/libdriver_pgsql.so
 
 %changelog
+* Fri Aug 04 2023 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-4
+- fix leaking mailboxes if virtual mailbox can't be opened (#2128857)
+
 * Tue Jul 19 2022 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-3
 - fix possible privilege escalation when similar master and non-master passdbs are used (#2106231)
 
