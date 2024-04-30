@@ -6,7 +6,7 @@ Name: dovecot
 Epoch: 1
 Version: 2.3.16
 %global prever %{nil}
-Release: 10%{?dist}
+Release: 11%{?dist}
 #dovecot itself is MIT, a few sources are PD, pigeonhole is LGPLv2
 License: MIT and LGPLv2
 
@@ -54,6 +54,9 @@ Patch21: dovecot-2.3.19.1-7bad6a24.patch
 # from upstream, for < 2.3.19.1, rhbz#2128857
 Patch22: dovecot-2.3.18-bdf447e4.patch
 Patch23: dovecot-2.3.18-9f300239..4596d399.patch
+
+# from upstream, for < 2.3.21, RHEL-25434
+Patch24: dovecot-2.3.16-d7705bc6.patch
 
 BuildRequires: gcc, gcc-c++, openssl-devel, pam-devel, zlib-devel, bzip2-devel, libcap-devel
 BuildRequires: libtool, autoconf, automake, pkgconfig
@@ -152,6 +155,7 @@ This package provides the development files for dovecot.
 %patch -P 20 -p1 -b .ftbfsbigend
 %patch -P 21 -p1 -b .7bad6a24
 %patch -P 22 -p1 -b .bdf447e4
+%patch -P 24 -p1 -b .d7705bc6
 cp run-test-valgrind.supp dovecot-2.3-pigeonhole-%{pigeonholever}/
 # valgrind would fail with shell wrapper
 echo "testsuite" >dovecot-2.3-pigeonhole-%{pigeonholever}/run-test-valgrind.exclude
@@ -490,6 +494,9 @@ make check
 %{_libdir}/%{name}/dict/libdriver_pgsql.so
 
 %changelog
+* Fri Feb 16 2024 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-11
+- fixes assert-crash when IMAP client uses QRESYNC (#RHEL-25434)
+
 * Tue Aug 15 2023 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-10
 - fix leaking mailboxes if virtual mailbox can't be opened (#2231408)
 
