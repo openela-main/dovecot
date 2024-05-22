@@ -5,7 +5,7 @@ Name: dovecot
 Epoch: 1
 Version: 2.3.16
 %global prever %{nil}
-Release: 4%{?dist}
+Release: 5%{?dist}
 #dovecot itself is MIT, a few sources are PD, pigeonhole is LGPLv2
 License: MIT and LGPLv2
 Group: System Environment/Daemons
@@ -53,6 +53,9 @@ Patch17: dovecot-2.3.19.1-7bad6a24.patch
 # from upstream, for < 2.3.19.1, rhbz#2128857
 Patch18: dovecot-2.3.18-9f300239..4596d399.patch
 Patch19: dovecot-2.3.18-bdf447e4.patch
+
+# from upstream, for < 2.3.21, RHEL-22854
+Patch20: dovecot-2.3.16-d7705bc6.patch
 
 
 Source15: prestartscript
@@ -163,6 +166,7 @@ This package provides the development files for dovecot.
 %patch -P 16 -p1 -b .keeplzma
 %patch -P 17 -p1 -b .7bad6a24
 %patch -P 19 -p1 -b .bdf447e4
+%patch -P 20 -p1 -b .d7705bc6
 pushd dovecot-2*3-pigeonhole-%{pigeonholever}
 %patch -P 18 -p1 -b .9f300239..4596d399
 
@@ -527,6 +531,9 @@ make check
 %{_libdir}/%{name}/dict/libdriver_pgsql.so
 
 %changelog
+* Fri Feb 16 2024 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-5
+- fixes assert-crash when IMAP client uses QRESYNC (#RHEL-22854)
+
 * Fri Aug 04 2023 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-4
 - fix leaking mailboxes if virtual mailbox can't be opened (#2128857)
 
