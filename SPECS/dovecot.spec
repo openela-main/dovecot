@@ -5,7 +5,7 @@ Name: dovecot
 Epoch: 1
 Version: 2.3.16
 %global prever %{nil}
-Release: 5%{?dist}
+Release: 6%{?dist}
 #dovecot itself is MIT, a few sources are PD, pigeonhole is LGPLv2
 License: MIT and LGPLv2
 Group: System Environment/Daemons
@@ -57,6 +57,16 @@ Patch19: dovecot-2.3.18-bdf447e4.patch
 # from upstream, for < 2.3.21, RHEL-22854
 Patch20: dovecot-2.3.16-d7705bc6.patch
 
+# from upstream for < 2.3.21.1, RHEL-55206
+# https://github.com/dovecot/core/compare/8e4c42d%5E...1481c04.patch
+Patch21: dovecot-2.3.21.1-CVE-2024-23184.patch
+
+# from upstream for < 2.3.21.1, RHEL-55219
+# https://github.com/dovecot/core/compare/f020e13%5E...ce88c33.patch
+Patch22: dovecot-2.3.21.1-CVE-2024-23185.patch
+
+# fix test failing due to too long path with all the mock path prefixes
+Patch23: dovecot-2.3.21-test-socket-path.patch
 
 Source15: prestartscript
 
@@ -167,6 +177,9 @@ This package provides the development files for dovecot.
 %patch -P 17 -p1 -b .7bad6a24
 %patch -P 19 -p1 -b .bdf447e4
 %patch -P 20 -p1 -b .d7705bc6
+%patch -P 21 -p1 -b .CVE-2024-23184
+%patch -P 22 -p1 -b .CVE-2024-23185
+%patch -P 23 -p1 -b .test-socket-path
 pushd dovecot-2*3-pigeonhole-%{pigeonholever}
 %patch -P 18 -p1 -b .9f300239..4596d399
 
@@ -531,6 +544,10 @@ make check
 %{_libdir}/%{name}/dict/libdriver_pgsql.so
 
 %changelog
+* Tue Aug 20 2024 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-6
+- fix CVE-2024-23185: very large headers can cause resource exhaustion when parsing message (RHEL-55219)
+- fix CVE-2024-23184: using a large number of address headers may trigger a denial of service (RHEL-55206)
+
 * Fri Feb 16 2024 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-5
 - fixes assert-crash when IMAP client uses QRESYNC (#RHEL-22854)
 
