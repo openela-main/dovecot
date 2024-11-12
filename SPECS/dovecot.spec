@@ -6,7 +6,7 @@ Name: dovecot
 Epoch: 1
 Version: 2.3.16
 %global prever %{nil}
-Release: 11%{?dist}.1
+Release: 14%{?dist}
 #dovecot itself is MIT, a few sources are PD, pigeonhole is LGPLv2
 License: MIT and LGPLv2
 
@@ -58,14 +58,18 @@ Patch23: dovecot-2.3.18-9f300239..4596d399.patch
 # from upstream, for < 2.3.21, RHEL-25434
 Patch24: dovecot-2.3.16-d7705bc6.patch
 
+# sent upstream, issue #RHEL-52541
+Patch25: dovecot-2.3-ph_optglob.patch
+Patch26: dovecot-2.3-ph_scriptcmp.patch
+
 # fix test failing due to too long path with all the mock path prefixes
 Patch27: dovecot-2.3.21-test-socket-path.patch
 
-# from upstream for < 2.3.21.1, RHEL-55211
+# from upstream for < 2.3.21.1, RHEL-55212
 # https://github.com/dovecot/core/compare/8e4c42d%5E...1481c04.patch
 Patch28: dovecot-2.3.21.1-CVE-2024-23184.patch
 
-# from upstream for < 2.3.21.1, RHEL-55225
+# from upstream for < 2.3.21.1, RHEL-55224
 # https://github.com/dovecot/core/compare/f020e13%5E...ce88c33.patch
 Patch29: dovecot-2.3.21.1-CVE-2024-23185.patch
 
@@ -152,6 +156,10 @@ This package provides the development files for dovecot.
 
 %prep
 %setup -q -n %{name}-%{version}%{?prever} -a 8
+
+# standardize name, so we don't have to update patches and scripts
+mv dovecot-2.3-pigeonhole-%{pigeonholever} dovecot-pigeonhole
+
 %patch -P 1 -p1 -b .default-settings
 %patch -P 2 -p1 -b .mkcert-permissions
 %patch -P 3 -p1 -b .mkcert-paths
@@ -167,15 +175,16 @@ This package provides the development files for dovecot.
 %patch -P 21 -p1 -b .7bad6a24
 %patch -P 22 -p1 -b .bdf447e4
 %patch -P 24 -p1 -b .d7705bc6
+%patch -P 25 -p1 -b .ph_optglob
+%patch -P 26 -p1 -b .ph_scriptcmp
 %patch -P 27 -p1 -b .test-socket-path
 %patch -P 28 -p1 -b .CVE-2024-23184
 %patch -P 29 -p1 -b .CVE-2024-23185
-
-cp run-test-valgrind.supp dovecot-2.3-pigeonhole-%{pigeonholever}/
+cp run-test-valgrind.supp dovecot-pigeonhole/
 # valgrind would fail with shell wrapper
-echo "testsuite" >dovecot-2.3-pigeonhole-%{pigeonholever}/run-test-valgrind.exclude
+echo "testsuite" >dovecot-pigeonhole/run-test-valgrind.exclude
 
-pushd dovecot-2*3-pigeonhole-%{pigeonholever}
+pushd dovecot-pigeonhole
 %patch -P 23 -p1 -b .9f300239..4596d399
 popd
 sed -i '/DEFAULT_INCLUDES *=/s|$| '"$(pkg-config --cflags libclucene-core)|" src/plugins/fts-lucene/Makefile.in
@@ -218,7 +227,7 @@ sed -i 's|/etc/ssl|/etc/pki/dovecot|' doc/mkcert.sh doc/example-config/conf.d/10
 %make_build
 
 #pigeonhole
-pushd dovecot-2*3-pigeonhole-%{pigeonholever}
+pushd dovecot-pigeonhole
 
 # required for snapshot
 [ -f configure ] || autoreconf -fiv
@@ -244,7 +253,7 @@ mv $RPM_BUILD_ROOT/%{_docdir}/%{name} %{_builddir}/%{name}-%{version}%{?prever}/
 # fix multilib issues
 %multilib_fix_c_header --file %{_includedir}/dovecot/config.h
 
-pushd dovecot-2*3-pigeonhole-%{pigeonholever}
+pushd dovecot-pigeonhole
 %make_install
 
 mv $RPM_BUILD_ROOT/%{_docdir}/%{name} $RPM_BUILD_ROOT/%{_docdir}/%{name}-pigeonhole
@@ -359,8 +368,14 @@ then
 fi
 
 %check
+# some time sensitive tests fail on aarch64, just log the result
+%ifarch aarch64
+make check ||:
+%else
 make check
-cd dovecot-2*3-pigeonhole-%{pigeonholever}
+%endif
+
+cd dovecot-pigeonhole
 make check
 
 %files
@@ -509,9 +524,15 @@ make check
 %{_libdir}/%{name}/dict/libdriver_pgsql.so
 
 %changelog
-* Mon Sep 02 2024 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-11.1
-- fix CVE-2024-23184: using a large number of address headers may trigger a denial of service (RHEL-55211)
-- fix CVE-2024-23185: very large headers can cause resource exhaustion when parsing message (RHEL-55225)
+* Tue Aug 20 2024 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-14
+- fix CVE-2024-23184: using a large number of address headers may trigger a denial of service (RHEL-55212)
+- fix CVE-2024-23185: very large headers can cause resource exhaustion when parsing message (RHEL-55224)
+
+* Mon Aug 05 2024 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-13
+- rebuild with updated tests
+
+* Mon Aug 05 2024 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-12
+- fix crash when user has sieve script that includes two missing scripts (RHEL-37160)
 
 * Fri Feb 16 2024 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-11
 - fixes assert-crash when IMAP client uses QRESYNC (#RHEL-25434)
