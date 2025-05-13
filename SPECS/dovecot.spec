@@ -6,7 +6,7 @@ Name: dovecot
 Epoch: 1
 Version: 2.3.16
 %global prever %{nil}
-Release: 14%{?dist}
+Release: 15%{?dist}
 #dovecot itself is MIT, a few sources are PD, pigeonhole is LGPLv2
 License: MIT and LGPLv2
 
@@ -269,7 +269,7 @@ install -p -D -m 644 %{SOURCE14} $RPM_BUILD_ROOT%{_mandir}/man5/dovecot.conf.5
 #install waitonline script
 install -p -D -m 755 %{SOURCE15} $RPM_BUILD_ROOT%{_libexecdir}/dovecot/prestartscript
 
-install -p -D -m 0644 %{SOURCE16} $RPM_BUILD_ROOT%{_sysusersdir}/dovecot.sysusers
+install -p -D -m 0644 %{SOURCE16} $RPM_BUILD_ROOT%{_sysusersdir}/dovecot.conf
 
 # generate ghost .pem files
 mkdir -p $RPM_BUILD_ROOT%{ssldir}/certs
@@ -389,7 +389,7 @@ make check
 
 
 %_tmpfilesdir/dovecot.conf
-%{_sysusersdir}/dovecot.sysusers
+%{_sysusersdir}/dovecot.conf
 %{_unitdir}/dovecot.service
 %{_unitdir}/dovecot-init.service
 %{_unitdir}/dovecot.socket
@@ -524,6 +524,9 @@ make check
 %{_libdir}/%{name}/dict/libdriver_pgsql.so
 
 %changelog
+* Wed Feb 05 2025 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-15
+- fix sysusers config file name (RHEL-77322)
+
 * Tue Aug 20 2024 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-14
 - fix CVE-2024-23184: using a large number of address headers may trigger a denial of service (RHEL-55212)
 - fix CVE-2024-23185: very large headers can cause resource exhaustion when parsing message (RHEL-55224)
