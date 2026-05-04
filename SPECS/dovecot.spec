@@ -6,7 +6,7 @@ Name: dovecot
 Epoch: 1
 Version: 2.3.21
 %global prever %{nil}
-Release: 16%{?dist}
+Release: 16%{?dist}.1
 #dovecot itself is MIT, a few sources are PD, pigeonhole is LGPLv2
 License: MIT AND LGPL-2.1-only
 
@@ -34,7 +34,6 @@ Patch6: dovecot-2.1.10-waitonline.patch
 
 Patch8: dovecot-2.2.20-initbysystemd.patch
 Patch9: dovecot-2.2.22-systemd_w_protectsystem.patch
-Patch10: dovecot-2.3.0.1-libxcrypt.patch
 Patch15: dovecot-2.3.11-bigkey.patch
 
 # do not use own implementation of HMAC, use OpenSSL for certification purposes
@@ -69,6 +68,26 @@ Patch28: dovecot-2.3.21.1-CVE-2024-23184.patch
 # from upstream for < 2.3.21.1, RHEL-55218
 # https://github.com/dovecot/core/compare/f020e13%5E...ce88c33.patch
 Patch29: dovecot-2.3.21.1-CVE-2024-23185.patch
+
+# from upstream for < 2.4.3, RHEL-161625
+# https://github.com/dovecot/pigeonhole/commit/54f645225a8a7911d7e16e9d50f170d217b0be95
+Patch30: dovecot-2.3-cve-2026-27858.patch
+
+# from upstream for < 2.4.3, RHEL-162273
+# https://github.com/dovecot/pigeonhole/commit/efb68fac3a9d2d04d38c4ab14dd570cf0c23923c
+Patch31: dovecot-2.3-cve-2025-59032.patch
+
+# from upstream for < 2.4.3, RHEL-161664
+# https://github.com/dovecot/core/commit/825bc297f87b856992aa14beac596ec838248210
+Patch32: dovecot-2.3-cve-2026-27857p1of5.patch
+# https://github.com/dovecot/core/commit/d0f67b52914565a35f3817335ab9633cb291513c
+Patch33: dovecot-2.3-cve-2026-27857p2of5.patch
+# https://github.com/dovecot/core/commit/af1fb4da5c1c5c458dc1d54dee3aefde6d3aa835
+Patch34: dovecot-2.3-cve-2026-27857p3of5.patch
+# https://github.com/dovecot/core/commit/3435e0d44c131eb1046a84fd83798f1e101b725e
+Patch35: dovecot-2.3-cve-2026-27857p4of5.patch
+# https://github.com/dovecot/pigeonhole/commit/5701db04455ee4d8e927d0b225634780a9b656b4
+Patch36: dovecot-2.3-cve-2026-27857p5of5.patch
 
 BuildRequires: gcc, gcc-c++, openssl-devel, pam-devel, zlib-devel, bzip2-devel, libcap-devel
 BuildRequires: libtool, autoconf, automake, pkgconfig
@@ -176,6 +195,13 @@ mv dovecot-2.3-pigeonhole-%{pigeonholever} dovecot-pigeonhole
 %patch -P 27 -p1 -b .test-socket-path
 %patch -P 28 -p1 -b .CVE-2024-23184
 %patch -P 29 -p1 -b .CVE-2024-23185
+%patch -P 30 -p1 -b .cve-2026-27858
+%patch -P 31 -p1 -b .cve-2025-59032
+%patch -P 32 -p1 -b .cve-2026-27857p1of5
+%patch -P 33 -p1 -b .cve-2026-27857p2of5
+%patch -P 34 -p1 -b .cve-2026-27857p3of5
+%patch -P 35 -p1 -b .cve-2026-27857p4of5
+%patch -P 36 -p1 -b .cve-2026-27857p5of5
 cp run-test-valgrind.supp dovecot-pigeonhole/
 # valgrind would fail with shell wrapper
 echo "testsuite" >dovecot-pigeonhole/run-test-valgrind.exclude
@@ -536,6 +562,11 @@ make check
 %{_libdir}/%{name}/dict/libdriver_pgsql.so
 
 %changelog
+* Tue Apr 07 2026 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.21-16.1
+- fix CVE-2026-27858: denial of service via crafted message before authentication (RHEL-161625)
+- fix CVE-2025-59032: ManageSieve: Denial of Service via crafted SASL initial response in AUTHENTICATE command (RHEL-162273)
+- fix CVE-2026-27857: denial of service via specially crafted NOOP command (RHEL-161664)
+
 * Wed Feb 05 2025 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.21-16
 - fix sysusers config file name (RHEL-77323)
 
