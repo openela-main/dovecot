@@ -5,7 +5,7 @@ Name: dovecot
 Epoch: 1
 Version: 2.3.16
 %global prever %{nil}
-Release: 6%{?dist}
+Release: 7%{?dist}
 #dovecot itself is MIT, a few sources are PD, pigeonhole is LGPLv2
 License: MIT and LGPLv2
 Group: System Environment/Daemons
@@ -67,6 +67,26 @@ Patch22: dovecot-2.3.21.1-CVE-2024-23185.patch
 
 # fix test failing due to too long path with all the mock path prefixes
 Patch23: dovecot-2.3.21-test-socket-path.patch
+
+# from upstream for < 2.4.3, RHEL-161630
+# https://github.com/dovecot/pigeonhole/commit/54f645225a8a7911d7e16e9d50f170d217b0be95
+Patch24: dovecot-2.3-cve-2026-27858.patch
+
+# from upstream for < 2.4.3, RHEL-162282
+# https://github.com/dovecot/pigeonhole/commit/efb68fac3a9d2d04d38c4ab14dd570cf0c23923c
+Patch25: dovecot-2.3-cve-2025-59032.patch
+
+# from upstream for < 2.4.3, RHEL-161669
+# https://github.com/dovecot/core/commit/825bc297f87b856992aa14beac596ec838248210
+Patch26: dovecot-2.3-cve-2026-27857p1of5.patch
+# https://github.com/dovecot/core/commit/d0f67b52914565a35f3817335ab9633cb291513c
+Patch27: dovecot-2.3-cve-2026-27857p2of5.patch
+# https://github.com/dovecot/core/commit/af1fb4da5c1c5c458dc1d54dee3aefde6d3aa835
+Patch28: dovecot-2.3-cve-2026-27857p3of5.patch
+# https://github.com/dovecot/core/commit/3435e0d44c131eb1046a84fd83798f1e101b725e
+Patch29: dovecot-2.3-cve-2026-27857p4of5.patch
+# https://github.com/dovecot/pigeonhole/commit/5701db04455ee4d8e927d0b225634780a9b656b4
+Patch30: dovecot-2.3-cve-2026-27857p5of5.patch
 
 Source15: prestartscript
 
@@ -163,6 +183,10 @@ This package provides the development files for dovecot.
 
 %prep
 %setup -q -n %{name}-%{version}%{?prever} -a 8
+
+# standardize name, so we don't have to update patches and scripts
+mv dovecot-2.3-pigeonhole-%{pigeonholever} dovecot-pigeonhole
+
 %patch -P 1 -p1 -b .default-settings
 %patch -P 2 -p1 -b .mkcert-permissions
 %patch -P 3 -p1 -b .mkcert-paths
@@ -175,15 +199,19 @@ This package provides the development files for dovecot.
 %patch -P 15 -p1 -b .ftbfsbigend
 %patch -P 16 -p1 -b .keeplzma
 %patch -P 17 -p1 -b .7bad6a24
+%patch -P 18 -p1 -b .9f300239..4596d399
 %patch -P 19 -p1 -b .bdf447e4
 %patch -P 20 -p1 -b .d7705bc6
 %patch -P 21 -p1 -b .CVE-2024-23184
 %patch -P 22 -p1 -b .CVE-2024-23185
 %patch -P 23 -p1 -b .test-socket-path
-pushd dovecot-2*3-pigeonhole-%{pigeonholever}
-%patch -P 18 -p1 -b .9f300239..4596d399
-
-popd
+%patch -P 24 -p1 -b .cve-2026-27858
+%patch -P 25 -p1 -b .cve-2025-59032
+%patch -P 26 -p1 -b .cve-2026-27857p1of5
+%patch -P 27 -p1 -b .cve-2026-27857p2of5
+%patch -P 28 -p1 -b .cve-2026-27857p3of5
+%patch -P 29 -p1 -b .cve-2026-27857p4of5
+%patch -P 30 -p1 -b .cve-2026-27857p5of5
 
 sed -i '/DEFAULT_INCLUDES *=/s|$| '"$(pkg-config --cflags libclucene-core)|" src/plugins/fts-lucene/Makefile.in
 
@@ -227,7 +255,7 @@ sed -i 's|/etc/ssl|/etc/pki/dovecot|' doc/mkcert.sh doc/example-config/conf.d/10
 make %{?_smp_mflags}
 
 #pigeonhole
-pushd dovecot-2*3-pigeonhole-%{pigeonholever}
+pushd dovecot-pigeonhole
 
 # required for snapshot
 [ -f configure ] || autoreconf -fiv
@@ -253,7 +281,7 @@ mv $RPM_BUILD_ROOT/%{_docdir}/%{name} %{_builddir}/%{name}-%{version}%{?prever}/
 # fix multilib issues
 %multilib_fix_c_header --file %{_includedir}/dovecot/config.h
 
-pushd dovecot-2*3-pigeonhole-%{pigeonholever}
+pushd dovecot-pigeonhole
 make install DESTDIR=$RPM_BUILD_ROOT
 
 mv $RPM_BUILD_ROOT/%{_docdir}/%{name} $RPM_BUILD_ROOT/%{_docdir}/%{name}-pigeonhole
@@ -391,7 +419,7 @@ fi
 
 %check
 make check
-cd dovecot-2*3-pigeonhole-%{pigeonholever}
+cd dovecot-pigeonhole
 make check
 
 %files
@@ -544,6 +572,11 @@ make check
 %{_libdir}/%{name}/dict/libdriver_pgsql.so
 
 %changelog
+* Mon Apr 13 2026 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-7
+- fix CVE-2026-27858: denial of service via crafted message before authentication (RHEL-161630)
+- fix CVE-2025-59032: ManageSieve: Denial of Service via crafted SASL initial response in AUTHENTICATE command (RHEL-162282)
+- fix CVE-2026-27857: denial of service via specially crafted NOOP command (RHEL-161669)
+
 * Tue Aug 20 2024 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-6
 - fix CVE-2024-23185: very large headers can cause resource exhaustion when parsing message (RHEL-55219)
 - fix CVE-2024-23184: using a large number of address headers may trigger a denial of service (RHEL-55206)

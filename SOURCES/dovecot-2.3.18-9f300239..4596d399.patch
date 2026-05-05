@@ -8,10 +8,10 @@ Subject: [PATCH 01/12] lib-sieve: sieve-interpreter - Fix field mixup in debug
  src/lib-sieve/sieve-interpreter.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/src/lib-sieve/sieve-interpreter.c b/src/lib-sieve/sieve-interpreter.c
+diff --git a/dovecot-pigeonhole/src/lib-sieve/sieve-interpreter.c b/dovecot-pigeonhole/src/lib-sieve/sieve-interpreter.c
 index 9ee6c659..274e142d 100644
---- a/src/lib-sieve/sieve-interpreter.c
-+++ b/src/lib-sieve/sieve-interpreter.c
+--- a/dovecot-pigeonhole/src/lib-sieve/sieve-interpreter.c
++++ b/dovecot-pigeonhole/src/lib-sieve/sieve-interpreter.c
 @@ -1003,8 +1003,8 @@ int sieve_interpreter_continue(struct sieve_interpreter *interp,
  		}
  		e_debug(e->event(), "Finished running script `%s' "
@@ -33,10 +33,10 @@ Subject: [PATCH 02/12] lib-sieve: sieve-result - Remove success parameter from
  src/lib-sieve/sieve-result.c | 18 ++++++++----------
  1 file changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/src/lib-sieve/sieve-result.c b/src/lib-sieve/sieve-result.c
+diff --git a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 index 55eb9f54..d3f2f925 100644
---- a/src/lib-sieve/sieve-result.c
-+++ b/src/lib-sieve/sieve-result.c
+--- a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
++++ b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 @@ -1475,8 +1475,7 @@ void sieve_result_execution_destroy(struct sieve_result_execution **_rexec)
  }
  
@@ -108,10 +108,10 @@ Subject: [PATCH 03/12] lib-sieve: sieve-result - Remove success parameter from
  src/lib-sieve/sieve-result.c | 11 +++++------
  1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/src/lib-sieve/sieve-result.c b/src/lib-sieve/sieve-result.c
+diff --git a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 index d3f2f925..3cf2c02a 100644
---- a/src/lib-sieve/sieve-result.c
-+++ b/src/lib-sieve/sieve-result.c
+--- a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
++++ b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 @@ -1603,8 +1603,7 @@ sieve_result_implicit_keep_execute(struct sieve_result_execution *rexec)
  }
  
@@ -162,10 +162,10 @@ Subject: [PATCH 04/12] lib-sieve: sieve-result - Move temp failure status
  src/lib-sieve/sieve-result.c | 38 ++++++++++++++++++++++++------------
  1 file changed, 26 insertions(+), 12 deletions(-)
 
-diff --git a/src/lib-sieve/sieve-result.c b/src/lib-sieve/sieve-result.c
+diff --git a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 index 3cf2c02a..44afeef7 100644
---- a/src/lib-sieve/sieve-result.c
-+++ b/src/lib-sieve/sieve-result.c
+--- a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
++++ b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 @@ -934,6 +934,7 @@ struct sieve_result_execution {
  	bool keep_success:1;
  	bool keep_explicit:1;
@@ -243,10 +243,10 @@ Subject: [PATCH 05/12] lib-sieve: sieve-result - Move temp failure status
  src/lib-sieve/sieve-result.c | 56 +++++++++++++++++++++---------------
  1 file changed, 33 insertions(+), 23 deletions(-)
 
-diff --git a/src/lib-sieve/sieve-result.c b/src/lib-sieve/sieve-result.c
+diff --git a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 index 44afeef7..10cc3b95 100644
---- a/src/lib-sieve/sieve-result.c
-+++ b/src/lib-sieve/sieve-result.c
+--- a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
++++ b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 @@ -1629,7 +1629,20 @@ sieve_result_implicit_keep_finalize(struct sieve_result_execution *rexec)
  	struct sieve_result_action *ract_keep = &rexec->keep_action;
  	struct sieve_action *act_keep = &ract_keep->action;
@@ -334,10 +334,10 @@ only be rolled back.
  src/lib-sieve/sieve-result.c | 2 --
  1 file changed, 2 deletions(-)
 
-diff --git a/src/lib-sieve/sieve-result.c b/src/lib-sieve/sieve-result.c
+diff --git a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 index 10cc3b95..82354831 100644
---- a/src/lib-sieve/sieve-result.c
-+++ b/src/lib-sieve/sieve-result.c
+--- a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
++++ b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 @@ -1494,8 +1494,6 @@ sieve_result_implicit_keep_execute(struct sieve_result_execution *rexec)
  		break;
  	case SIEVE_EXEC_TEMP_FAILURE:
@@ -358,10 +358,10 @@ Subject: [PATCH 07/12] lib-sieve: sieve-result - Fix handling of resource
  src/lib-sieve/sieve-result.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/src/lib-sieve/sieve-result.c b/src/lib-sieve/sieve-result.c
+diff --git a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 index 82354831..96582075 100644
---- a/src/lib-sieve/sieve-result.c
-+++ b/src/lib-sieve/sieve-result.c
+--- a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
++++ b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 @@ -1980,6 +1980,7 @@ int sieve_result_execute(struct sieve_result_execution *rexec, int status,
  				result_status = SIEVE_EXEC_FAILURE;
  			break;
@@ -385,10 +385,10 @@ of delivery when the mail user is destroyed.
  src/lib-sieve/sieve-result.c | 18 ++++++++++++++----
  1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/src/lib-sieve/sieve-result.c b/src/lib-sieve/sieve-result.c
+diff --git a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 index 96582075..10ea349c 100644
---- a/src/lib-sieve/sieve-result.c
-+++ b/src/lib-sieve/sieve-result.c
+--- a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
++++ b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 @@ -1627,7 +1627,7 @@ sieve_result_implicit_keep_finalize(struct sieve_result_execution *rexec)
  	struct sieve_result_action *ract_keep = &rexec->keep_action;
  	struct sieve_action *act_keep = &ract_keep->action;
@@ -439,10 +439,10 @@ Subject: [PATCH 09/12] lib-sieve: sieve-result - Assert that implicit keep is
  src/lib-sieve/sieve-result.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/src/lib-sieve/sieve-result.c b/src/lib-sieve/sieve-result.c
+diff --git a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 index 10ea349c..de97d6ae 100644
---- a/src/lib-sieve/sieve-result.c
-+++ b/src/lib-sieve/sieve-result.c
+--- a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
++++ b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 @@ -1691,6 +1691,8 @@ sieve_result_implicit_keep_finalize(struct sieve_result_execution *rexec)
  	if (act_keep->def == NULL)
  		return rexec->keep_status;
@@ -463,10 +463,10 @@ Subject: [PATCH 10/12] lib-sieve: sieve-result - Add debug messages for temp
  src/lib-sieve/sieve-result.c | 28 +++++++++++++++++++++++++---
  1 file changed, 25 insertions(+), 3 deletions(-)
 
-diff --git a/src/lib-sieve/sieve-result.c b/src/lib-sieve/sieve-result.c
+diff --git a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 index de97d6ae..c21c8017 100644
---- a/src/lib-sieve/sieve-result.c
-+++ b/src/lib-sieve/sieve-result.c
+--- a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
++++ b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 @@ -1494,10 +1494,21 @@ sieve_result_implicit_keep_execute(struct sieve_result_execution *rexec)
  		break;
  	case SIEVE_EXEC_TEMP_FAILURE:
@@ -528,10 +528,10 @@ Subject: [PATCH 11/12] lib-sieve: sieve-result - Indicate in
  src/lib-sieve/sieve-result.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/src/lib-sieve/sieve-result.c b/src/lib-sieve/sieve-result.c
+diff --git a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 index c21c8017..6f3cb954 100644
---- a/src/lib-sieve/sieve-result.c
-+++ b/src/lib-sieve/sieve-result.c
+--- a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
++++ b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 @@ -1796,10 +1796,11 @@ sieve_result_transaction_execute(struct sieve_result_execution *rexec,
  	}
  
@@ -558,10 +558,10 @@ Subject: [PATCH 12/12] lib-sieve: sieve-result - Indicate in
  src/lib-sieve/sieve-result.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/src/lib-sieve/sieve-result.c b/src/lib-sieve/sieve-result.c
+diff --git a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 index 6f3cb954..effd6f28 100644
---- a/src/lib-sieve/sieve-result.c
-+++ b/src/lib-sieve/sieve-result.c
+--- a/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
++++ b/dovecot-pigeonhole/src/lib-sieve/sieve-result.c
 @@ -1859,10 +1859,11 @@ sieve_result_transaction_commit_or_rollback(
  	}
  
