@@ -388,13 +388,7 @@ diff -up dovecot-2.3.14/src/lib/hmac.c.opensslhmac dovecot-2.3.14/src/lib/hmac.c
  
  	/* salt and info can be NULL */
  	i_assert(salt != NULL || salt_len == 0);
-@@ -118,35 +192,36 @@ void hmac_hkdf(const struct hash_method
- 	i_assert(ikm != NULL && ikm_len > 0);
- 	i_assert(okm_r != NULL && okm_len > 0);
- 
- 	/* but they still need valid pointer, reduces
- 	   complains from static analysers */
- 	if (salt == NULL)
+@@ -118,29 +192,30 @@ void hmac_hkdf(const struct hash_method
  		salt = &uchar_nul;
  	if (info == NULL)
  		info = &uchar_nul;
