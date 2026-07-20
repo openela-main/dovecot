@@ -6,7 +6,7 @@ Name: dovecot
 Epoch: 1
 Version: 2.3.16
 %global prever %{nil}
-Release: 18%{?dist}
+Release: 18%{?dist}.1
 #dovecot itself is MIT, a few sources are PD, pigeonhole is LGPLv2
 License: MIT and LGPLv2
 
@@ -92,6 +92,10 @@ Patch34: dovecot-2.3-cve-2026-27857p3of5.patch
 Patch35: dovecot-2.3-cve-2026-27857p4of5.patch
 # https://github.com/dovecot/pigeonhole/commit/5701db04455ee4d8e927d0b225634780a9b656b4
 Patch36: dovecot-2.3-cve-2026-27857p5of5.patch
+
+# from upstream for < 2.4.4, RHEL-188468
+# https://github.com/dovecot/core/commit/da1438c76b797f055d4ad7f0eaa17e5e29ca31ee
+Patch37: dovecot-2.3-cve-2026-42006.patch
 
 BuildRequires: gcc, gcc-c++, openssl-devel, pam-devel, zlib-devel, bzip2-devel, libcap-devel
 BuildRequires: libtool, autoconf, automake, pkgconfig
@@ -207,6 +211,7 @@ mv dovecot-2.3-pigeonhole-%{pigeonholever} dovecot-pigeonhole
 %patch -P 34 -p1 -b .cve-2026-27857p3of5
 %patch -P 35 -p1 -b .cve-2026-27857p4of5
 %patch -P 36 -p1 -b .cve-2026-27857p5of5
+%patch -P 37 -p1 -b .cve-2026-42006
 cp run-test-valgrind.supp dovecot-pigeonhole/
 # valgrind would fail with shell wrapper
 echo "testsuite" >dovecot-pigeonhole/run-test-valgrind.exclude
@@ -551,6 +556,10 @@ make check
 %{_libdir}/%{name}/dict/libdriver_pgsql.so
 
 %changelog
+* Fri Jun 26 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1:2.3.16-18.1
+- fix CVE-2026-42006: IMAP parser list_count_limit bypass via open
+  parentheses (RHEL-188468)
+
 * Mon May 11 2026 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-18
 - rebuild
 
