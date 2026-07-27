@@ -5,7 +5,7 @@ Name: dovecot
 Epoch: 1
 Version: 2.3.16
 %global prever %{nil}
-Release: 7%{?dist}
+Release: 8%{?dist}
 #dovecot itself is MIT, a few sources are PD, pigeonhole is LGPLv2
 License: MIT and LGPLv2
 Group: System Environment/Daemons
@@ -87,6 +87,10 @@ Patch28: dovecot-2.3-cve-2026-27857p3of5.patch
 Patch29: dovecot-2.3-cve-2026-27857p4of5.patch
 # https://github.com/dovecot/pigeonhole/commit/5701db04455ee4d8e927d0b225634780a9b656b4
 Patch30: dovecot-2.3-cve-2026-27857p5of5.patch
+
+# from upstream for < 2.4.4, RHEL-188480
+# https://github.com/dovecot/core/commit/9a0f8c1066956ea7450ca82b57f904332006a502
+Patch31: dovecot-2.3-cve-2026-42006.patch
 
 Source15: prestartscript
 
@@ -212,6 +216,7 @@ mv dovecot-2.3-pigeonhole-%{pigeonholever} dovecot-pigeonhole
 %patch -P 28 -p1 -b .cve-2026-27857p3of5
 %patch -P 29 -p1 -b .cve-2026-27857p4of5
 %patch -P 30 -p1 -b .cve-2026-27857p5of5
+%patch -P 31 -p1 -b .cve-2026-42006
 
 sed -i '/DEFAULT_INCLUDES *=/s|$| '"$(pkg-config --cflags libclucene-core)|" src/plugins/fts-lucene/Makefile.in
 
@@ -572,6 +577,10 @@ make check
 %{_libdir}/%{name}/dict/libdriver_pgsql.so
 
 %changelog
+* Fri Jun 26 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1:2.3.16-8
+- fix CVE-2026-42006: fix IMAP parser list_count_limit to correctly
+  limit open braces instead of close braces (RHEL-188480)
+
 * Mon Apr 13 2026 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.16-7
 - fix CVE-2026-27858: denial of service via crafted message before authentication (RHEL-161630)
 - fix CVE-2025-59032: ManageSieve: Denial of Service via crafted SASL initial response in AUTHENTICATE command (RHEL-162282)
