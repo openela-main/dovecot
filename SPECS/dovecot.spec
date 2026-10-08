@@ -6,7 +6,7 @@ Name: dovecot
 Epoch: 1
 Version: 2.3.21
 %global prever %{nil}
-Release: 19%{?dist}.1
+Release: 19%{?dist}.8
 #dovecot itself is MIT, a few sources are PD, pigeonhole is LGPLv2
 License: MIT AND LGPL-2.1-only
 
@@ -90,6 +90,47 @@ Patch35: dovecot-2.3-cve-2026-27857p4of5.patch
 Patch36: dovecot-2.3-cve-2026-27857p5of5.patch
 # https://github.com/dovecot/core/commit/9a0f8c1066956ea7450ca82b57f904332006a502
 Patch37: dovecot-2.3-cve-2026-42006.patch
+# https://github.com/dovecot/core/commit/ff8d8059d7ba85375c6dc723fc1b7743114fbba4
+Patch38: dovecot-2.3-cve-2026-33263.patch
+
+# from upstream for < 2.4.4, RHEL-251564
+# https://github.com/dovecot/core/commit/977de721d6fcac09ab254958253856abcc0393c1
+Patch39: dovecot-2.3-cve-2026-27852p1of5.patch
+# https://github.com/dovecot/core/commit/4b7e869b4b8fb70e0c32e4106aebc31a07b9f75b
+Patch40: dovecot-2.3-cve-2026-27852p2of5.patch
+# https://github.com/dovecot/core/commit/c853685f820157046136bd027861cb2a21c13fbc
+Patch41: dovecot-2.3-cve-2026-27852p3of5.patch
+# https://github.com/dovecot/core/commit/32010a7067a7970d302981c888f1e10904184499
+Patch42: dovecot-2.3-cve-2026-27852p4of5.patch
+# https://github.com/dovecot/core/commit/1fa4c5a3fe21ca1994e54022050d23e260416c3c
+Patch43: dovecot-2.3-cve-2026-27852p5of5.patch
+
+# from upstream, for < 2.4.5, RHEL-251911
+# https://github.com/dovecot/core/commit/4aa93054b6c9e4d0503e1cb78be36b389d2af98c
+Patch44: dovecot-2.3-cve-2026-73208p1of4.patch
+# https://github.com/dovecot/core/commit/8518e3f62183b462bef645977b48af32e6701f6f
+Patch45: dovecot-2.3-cve-2026-73208p2of4.patch
+# https://github.com/dovecot/core/commit/91b7a86a20f805301e8ea15715b246040c4d8cd9
+Patch46: dovecot-2.3-cve-2026-73208p3of4.patch
+# https://github.com/dovecot/core/commit/87939023ef21f49959466ecf4f55f99b6e006140
+Patch47: dovecot-2.3-cve-2026-73208p4of4.patch
+
+# https://github.com/dovecot/core/commit/78518c10c7aa1236c1ed1ebb2d558ce24e6bc122
+Patch48: dovecot-2.3-cve-2026-42391.patch
+
+# for dovecot < 2.4.5, RHEL-252058
+Patch49: dovecot-2.3.21-CVE-2026-40018.patch
+
+# for dovecot < 2.4.5, RHEL-251945
+# https://github.com/dovecot/pigeonhole/commit/69bac9cd6d4ac09100ee50c98052be1437f1da29
+# https://github.com/dovecot/pigeonhole/commit/a44ba381619a06416ce3f34eae9765de46ece5d9
+Patch50: dovecot-2.3-cve-2026-42007.patch
+
+# from upstream for < 2.4.5, RHEL-251984
+# https://github.com/dovecot/pigeonhole/commit/14c28ca9c4aab11b1074c629bb744c4741434148
+Patch51: dovecot-2.3-cve-2026-33605p1of2.patch
+# https://github.com/dovecot/pigeonhole/commit/77bf1049ab8652b125e02ed00a15e1dd2e1feb98
+Patch52: dovecot-2.3-cve-2026-33605p2of2.patch
 
 BuildRequires: gcc, gcc-c++, openssl-devel, pam-devel, zlib-devel, bzip2-devel, libcap-devel
 BuildRequires: libtool, autoconf, automake, pkgconfig
@@ -205,6 +246,21 @@ mv dovecot-2.3-pigeonhole-%{pigeonholever} dovecot-pigeonhole
 %patch -P 35 -p1 -b .cve-2026-27857p4of5
 %patch -P 36 -p1 -b .cve-2026-27857p5of5
 %patch -P 37 -p1 -b .cve-2026-42006
+%patch -P 38 -p1 -b .cve-2026-33263
+%patch -P 39 -p1 -b .cve-2026-27852p1of5
+%patch -P 40 -p1 -b .cve-2026-27852p2of5
+%patch -P 41 -p1 -b .cve-2026-27852p3of5
+%patch -P 42 -p1 -b .cve-2026-27852p4of5
+%patch -P 43 -p1 -b .cve-2026-27852p5of5
+%patch -P 44 -p1 -b .cve-2026-73208p1of4
+%patch -P 45 -p1 -b .cve-2026-73208p2of4
+%patch -P 46 -p1 -b .cve-2026-73208p3of4
+%patch -P 47 -p1 -b .cve-2026-73208p4of4
+%patch -P 48 -p1 -b .cve-2026-42391
+%patch -P 49 -p1 -b .CVE-2026-40018
+%patch -P 50 -p1 -b .cve-2026-42007
+%patch -P 51 -p1 -b .cve-2026-33605p1of2
+%patch -P 52 -p1 -b .cve-2026-33605p2of2
 cp run-test-valgrind.supp dovecot-pigeonhole/
 # valgrind would fail with shell wrapper
 echo "testsuite" >dovecot-pigeonhole/run-test-valgrind.exclude
@@ -565,6 +621,31 @@ make check
 %{_libdir}/%{name}/dict/libdriver_pgsql.so
 
 %changelog
+* Tue Sep 29 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1:2.3.21-19.8
+- fix CVE-2026-33605: ManageSieve: denial of service via lone CR
+  character causing protocol deadlock (RHEL-251984)
+
+* Tue Sep 29 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1:2.3.21-19.7
+- fix CVE-2026-42007: fix use-after-free and info leak in sieve
+  editheader extension (RHEL-251945)
+
+* Mon Sep 28 2026 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.21-19.6
+- fix CVE-2026-40018: incorrect escaping of multi-byte strings in SQL commands (RHEL-252058)
+
+* Mon Sep 28 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1:2.3.21-19.5
+- fix CVE-2026-42391: fix excessive memory growth with pre-login ID
+  command (RHEL-252072)
+
+* Tue Sep 22 2026 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.21-19.4
+- fix CVE-2026-73208: OAuth2 scope check requires all configured scopes, add oauth2_audience setting (RHEL-251900)
+
+* Mon Sep 21 2026 Michal Hlavinka <mhlavink@redhat.com> - 1:2.3.21-19.3
+- fix CVE-2026-27852: limit parsed message data to prevent memory exhaustion (RHEL-251564)
+
+* Tue Sep 01 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1:2.3.21-19.2
+- fix CVE-2026-33263: submission-login epoll panic at
+  mail_max_userip_connections limit (RHEL-251917)
+
 * Fri Jun 26 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 1:2.3.21-19.1
 - fix CVE-2026-42006: fix imap_parser list_count_limit to actually
   work (RHEL-188477)
