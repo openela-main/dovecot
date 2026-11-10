@@ -1,0 +1,12 @@
+diff -up dovecot-2.3.21/src/login-common/client-common.h.tokensize dovecot-2.3.21/src/login-common/client-common.h
+--- dovecot-2.3.21/src/login-common/client-common.h.tokensize
++++ dovecot-2.3.21/src/login-common/client-common.h
+@@ -26,7 +26,7 @@
+ #define LOGIN_MAX_OUTBUF_SIZE 4096
+
+ /* Max. length of SASL authentication buffer. */
+-#define LOGIN_MAX_AUTH_BUF_SIZE 8192
++#define LOGIN_MAX_AUTH_BUF_SIZE 65536
+
+ /* Disconnect client after this many milliseconds if it hasn't managed
+    to log in yet. */
